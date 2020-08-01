@@ -1,20 +1,15 @@
 var pos = 0;
+var animationTime = 2000
 var numOfImages = document.getElementsByClassName("image-1").length;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function getImageToSlide(pos) {
-    var animImage = document.getElementsByClassName("anim");
-    var animImage2 = document.getElementsByClassName("anim-2");
-    if(animImage2.length!=0)
-    {
-        var image = animImage2[0];
-        image.className="image-1";
-    }
-    if(animImage.length!=0)
-    {
-        var image = animImage[0];
-        image.className="image-1";
-    }
-    var images = document.getElementsByClassName("image-1");
+    var images = document.getElementsByClassName("slider")[0].children;
+    if(pos == 0)
+    console.log(images[pos]);
     return images[pos];
 }
 
@@ -28,47 +23,59 @@ function getNewBackground(pos) {
     return images[pos];
 }
 
+async function changePreviousImageClassName(prevIndex) {
+    var image = getImageToSlide(prevIndex);
+    image.className = "image-2";
+    await sleep(animationTime);
+    image.className = "image-1";
+}
+
+function slideDownAndChangeBackround(pos, prevIndex) {
+    var newBackground = getNewBackground(pos);
+    newBackground.className = "opaq";
+    var imageToSlide = getImageToSlide(pos);
+    imageToSlide.className = "anim";
+    changePreviousImageClassName(prevIndex);
+    imageToSlide.style.top = "0%";
+    return;
+}
+
+function slideUpAndChangeBackround(pos, prevIndex) {
+    var newBackground = getNewBackground(pos);
+    newBackground.className = "opaq";
+    var imageToSlide = getImageToSlide(pos);
+    imageToSlide.className = "anim-2";
+    changePreviousImageClassName(prevIndex);
+    imageToSlide.style.top = "0%";
+    return;
+}
+
 function changeActiveBtn(idx) {
-    // alert(idx);
-    var currAct = document.getElementsByClassName("act");
-    var prevPos;
-    if(currAct.length!=0) {
-        var curr = currAct[0];
-        var prevIndex = [...curr.parentElement.children].indexOf(curr)
+    var currActive = document.getElementsByClassName("act");
+    var prevIndex;
+    if(currActive.length != 0) {
+        var curr = currActive[0];
+        prevIndex = [...curr.parentElement.children].indexOf(curr)
         curr.className = "fa fa-circle inact";
     }
     var btns = document.getElementsByClassName("inact");
     btns[idx].className = "fa fa-circle act";
 
     if(prevIndex == numOfImages-1 && idx == 0) {
-        var newBackground = getNewBackground(pos);
-        newBackground.className = "opaq";
-        var imageToSlide = getImageToSlide(pos);
-        imageToSlide.className = "anim";
-        imageToSlide.style.top = "0%";
+        slideDownAndChangeBackround(idx, prevIndex);
         return;
     }
     if(prevIndex == 0 && idx == numOfImages-1) {
-        var newBackground = getNewBackground(pos);
-        newBackground.className = "opaq";
-        var imageToSlide = getImageToSlide(pos);
-        imageToSlide.className = "anim-2";
-        imageToSlide.style.top = "0%";
+        slideUpAndChangeBackround(idx, prevIndex);
         return;
     }
     if(prevIndex > idx) {
-        var newBackground = getNewBackground(pos);
-        newBackground.className = "opaq";
-        var imageToSlide = getImageToSlide(pos);
-        imageToSlide.className = "anim-2";
-        imageToSlide.style.top = "0%";
+        slideUpAndChangeBackround(idx, prevIndex);
+        return;
     }
     if (prevIndex < idx) {
-        var newBackground = getNewBackground(pos);
-        newBackground.className = "opaq";
-        var imageToSlide = getImageToSlide(pos);
-        imageToSlide.className = "anim";
-        imageToSlide.style.top = "0%";
+        slideDownAndChangeBackround(idx, prevIndex);
+        return;
     }
 }
 var div = document.getElementsByClassName('fg-slider__dots');
